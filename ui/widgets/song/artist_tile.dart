@@ -1,14 +1,35 @@
 import 'package:flutter/material.dart';
 import '../../../model/artist/artist.dart';
 
-class ArtistTile extends StatelessWidget {
-  const ArtistTile({
-    super.key,
-    required this.artist,
-    
-  });
+class ArtistTile extends StatefulWidget {
+  const ArtistTile({super.key, required this.artist});
 
   final Artist artist;
+
+  @override
+  State<ArtistTile> createState() => _ArtistTileState();
+}
+
+class _ArtistTileState extends State<ArtistTile> {
+  bool _isLiked = false;
+  late int _likes;
+
+  @override
+  void initState() {
+    super.initState();
+    _likes = 0;
+  }
+
+  void _toggleLike() {
+    setState(() {
+      _isLiked = !_isLiked;
+      if (_isLiked) {
+        _likes++; // increase
+      } else {
+        _likes--; // decrease
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,10 +41,17 @@ class ArtistTile extends StatelessWidget {
           borderRadius: BorderRadius.circular(15),
         ),
         child: ListTile(
-          title: Text(artist.name),
-          subtitle: Text("Genre: ${artist.genre}"),
+          title: Text(widget.artist.name),
+          subtitle: Text("$_likes likes"),
           leading: CircleAvatar(
-            backgroundImage: NetworkImage(artist.imageUrl.toString()),
+            backgroundImage: NetworkImage(widget.artist.imageUrl.toString()),
+          ),
+          trailing: IconButton(
+            onPressed: _toggleLike,
+            icon: Icon(
+              _isLiked ? Icons.favorite : Icons.favorite_border,
+              color: _isLiked ? Colors.red : const Color(0xFF90CAF9),
+            ),
           ),
         ),
       ),

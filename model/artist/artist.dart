@@ -11,6 +11,8 @@ class Artist {
     required this.imageUrl,
   });
 
+  //int get likes => null;
+
   @override
   String toString() {
     return 'Song(id: $id, name: $name, genre: $genre, genre: $genre)';
