@@ -7,6 +7,8 @@ import '../../dtos/song_dto.dart';
 import 'song_repository.dart';
 
 class SongRepositoryFirebase extends SongRepository {
+  List<Song>? _cacheSongs;
+
   final Uri songsUri = Uri.https(
     'test-a2a77-default-rtdb.asia-southeast1.firebasedatabase.app',
     '/songs.json',
@@ -19,6 +21,10 @@ class SongRepositoryFirebase extends SongRepository {
 
   @override
   Future<List<Song>> fetchSongs() async {
+    if (_cacheSongs != null) {
+      return _cacheSongs!;
+    }
+
     final http.Response response = await http.get(songsUri);
 
     if (response.statusCode == 200) {
@@ -29,6 +35,9 @@ class SongRepositoryFirebase extends SongRepository {
       for (final entry in songJson.entries) {
         result.add(SongDto.fromJson(entry.key, entry.value));
       }
+
+      _cacheSongs = result;
+
       return result;
     } else {
       // 2- Throw expcetion if any issue
@@ -37,7 +46,16 @@ class SongRepositoryFirebase extends SongRepository {
   }
 
   @override
-  Future<Song?> fetchSongById(String id) async {}
+  Future<Song?> fetchSongById(String id) async {
+    final List<Song> songs = await fetchSongs();
+
+    for (final song in songs) {
+      if (song.id == id) {
+        return song;
+      }
+    }
+    return null;
+  }
 
   @override
   Future<void> updateSongLikes(String songId, int likes) async {
